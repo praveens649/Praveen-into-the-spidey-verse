@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-bangers: 'Bangers', cursive;
+    --font-audiowide: 'Audiowide', cursive;
+    --font-marker: 'Permanent Marker', cursive;
+    --font-grotesk: 'Space Grotesk', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0212;
+    color: #ffffff;
+    font-family: var(--font-grotesk);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Font Utilities */
+.font-bangers {
+  font-family: var(--font-bangers);
+}
+
+.font-audiowide {
+  font-family: var(--font-audiowide);
+}
+
+.font-marker {
+  font-family: var(--font-marker);
+}
+
+.font-grotesk {
+  font-family: var(--font-grotesk);
+}
+
+/* Halftone and Comic Grids */
+.bg-halftone {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+}
+
+.bg-comic-dots-red {
+  background-image: radial-gradient(circle, rgba(230, 62, 55, 0.12) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+.bg-comic-dots-cyan {
+  background-image: radial-gradient(circle, rgba(0, 240, 255, 0.12) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+/* Spider-Verse 3D Comic Text Shadows */
+.comic-shadow-red {
+  text-shadow: 
+    3px 3px 0px #E63E37,
+    6px 6px 0px #120220;
+}
+
+.comic-shadow-white {
+  text-shadow: 
+    3px 3px 0px #ffffff,
+    6px 6px 0px #120220;
+}
+
+.comic-shadow-black {
+  text-shadow: 
+    2px 2px 0px #000000,
+    4px 4px 0px #000000;
+}
+
+/* Comic Panel Hard Borders and Shadows */
+.comic-box {
+  border: 3px solid #1a0f28;
+  box-shadow: 5px 5px 0px #000000;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.comic-box:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px #E63E37;
+}
+
+.comic-box-orange {
+  border: 3px solid #FF8C00;
+  box-shadow: 5px 5px 0px rgba(255, 140, 0, 0.4);
+}
+
+.comic-nav-btn {
+  background: #ffffff;
+  color: #0a0212;
+  font-family: var(--font-bangers);
+  border: 3px solid #1a0f28;
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.comic-nav-btn:hover {
+  transform: translate(-2px, -2px) rotate(-1deg);
+  box-shadow: 6px 6px 0px #E63E37;
+  color: #E63E37;
+}
+
+.comic-nav-btn.active {
+  background: #E63E37;
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 4px 4px 0px #00f0ff;
+  transform: rotate(-1deg);
+}
+
+/* Spider-Verse Chromatic Glitch Keyframes */
+@keyframes sv-glitch {
+  0%, 88%, 100% {
+    transform: translate(0, 0);
+    text-shadow: -2px 0 #E63E37, 2px 0 #00f0ff;
+  }
+  90% {
+    transform: translate(-3px, 1px);
+    text-shadow: 3px 0 #E63E37, -3px 0 #00f0ff;
+  }
+  92% {
+    transform: translate(2px, -1px);
+    text-shadow: -3px 0 #00f0ff, 3px 0 #E63E37;
+  }
+  94% {
+    transform: translate(0, 0);
+    text-shadow: -2px 0 #E63E37, 2px 0 #00f0ff;
+  }
+}
+
+.spider-glitch {
+  animation: sv-glitch 4.5s infinite;
+}
+
+@keyframes sv-flicker {
+  0%, 93%, 100% { opacity: 1; }
+  94% { opacity: 0.8; }
+  96% { opacity: 0.95; }
+  98% { opacity: 0.7; }
+}
+
+.spider-flicker {
+  animation: sv-flicker 6s infinite;
+}
+
+@keyframes sv-pulse-slow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.88; }
+}
+
+.spider-pulse {
+  animation: sv-pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes sv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.spider-float {
+  animation: sv-float 4s ease-in-out infinite;
+}
+
+@keyframes spider-sway {
+  0% { transform-origin: top; transform: rotate(0); }
+  25% { transform-origin: top; transform: rotate(4deg); }
+  75% { transform-origin: top; transform: rotate(-4deg); }
+  to { transform-origin: top; transform: rotate(0); }
+}
+
+@keyframes city-lights-pulse {
+  0%, 100% { filter: contrast(1.15) brightness(1.0); }
+  50% { filter: contrast(1.22) brightness(1.05) drop-shadow(0 0 12px rgba(0, 240, 255, 0.12)); }
+}
+
+.animate-city-lights {
+  animation: city-lights-pulse 7s ease-in-out infinite;
+}
+
+@keyframes clouds-drift {
+  0% { transform: scale(1.06) translate(0, 0); }
+  50% { transform: scale(1.06) translate(-18px, 6px); }
+  100% { transform: scale(1.06) translate(0, 0); }
+}
+
+.animate-clouds-drift {
+  animation: clouds-drift 35s ease-in-out infinite;
+}
+
+@keyframes sv-portal-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.portal-spin {
+  animation: sv-portal-spin 35s linear infinite;
+}
+
+/* Scanline Overlay */
+.scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 2px,
+    rgba(0, 0, 0, 0.22) 4px
+  );
+  pointer-events: none;
+}
+
+/* Comic Cut Polygon Clips */
+.clip-comic-angle {
+  clip-path: polygon(14px 0%, calc(100% - 14px) 0%, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0% calc(100% - 14px), 0% 14px);
+}
+
+.clip-badge {
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0212;
+}
+::-webkit-scrollbar-thumb {
+  background: #E63E37;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff524a;
+}
+
+/* Responsive City Parallax Layers for Mobile */
+@media (max-width: 767px) {
+  .city-parallax-layer-0 {
+    width: 190vw !important;
+    max-width: none !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: clamp(28px, 5dvh, 44px) !important;
+  }
+  .city-parallax-layer-1 {
+    width: 200vw !important;
+    max-width: none !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: clamp(12px, 2.5dvh, 26px) !important;
+  }
+  .city-parallax-layer-2 {
+    width: 215vw !important;
+    max-width: none !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: clamp(-10px, -1dvh, 0px) !important;
+  }
+}
