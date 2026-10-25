@@ -42,6 +42,17 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
     };
   }, [spiderState]);
 
+  // Track scroll position to retract Gwen & Miles when reading story cards on About page
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const isSpiderDown = spiderState === 'dropping' || spiderState === 'hanging';
 
   // Navigation tabs depending on the active page
@@ -240,8 +251,15 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
         {/* 3. Gwen Stacy & Miles Morales Upside Down on the Rooftop Ledge */}
         <div
-          className="absolute flex items-start pointer-events-auto"
-          style={{ top: 38, right: '14%', zIndex: 10 }}
+          className="absolute flex items-start pointer-events-auto transition-all duration-500 ease-out"
+          style={{
+            top: 38,
+            right: '14%',
+            zIndex: 10,
+            opacity: currentTab === 'about' && isScrolled ? 0 : 1,
+            transform: currentTab === 'about' && isScrolled ? 'translateY(-120%) scale(0.95)' : 'translateY(0) scale(1)',
+            pointerEvents: currentTab === 'about' && isScrolled ? 'none' : 'auto',
+          }}
         >
           {/* Gwen Stacy (Upside Down) */}
           <div className="relative" style={{ height: '280px' }}>
