@@ -1,9 +1,15 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { ExternalLink, Code } from 'lucide-react';
+import { ExternalLink, Code, Maximize2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Authentic Spider-Verse Comic Borders & Constants
 const BORDER_PANEL = '3px solid #1a0a0b';
 const CARD_TILTS = ['-1.5deg', '0.8deg', '-0.4deg', '1.2deg', '-1deg', '0.6deg'];
+
+export interface ProjectImage {
+  url: string;
+  label: string;
+  caption?: string;
+}
 
 export interface ProjectData {
   id: string;
@@ -14,7 +20,7 @@ export interface ProjectData {
   tags: string[];
   accentColor: string;
   template: 'featured' | 'grid6' | 'banner-strip' | 'asymmetric';
-  imageUrl?: string;
+  images: ProjectImage[];
   splash: {
     headline: string;
     sub?: string;
@@ -38,6 +44,23 @@ export const PROJECTS: ProjectData[] = [
     tags: ['Next.js 16', 'NestJS 12', 'PostgreSQL', 'Prisma 7', 'Leaflet', 'TanStack Query', 'Resend'],
     accentColor: '#E63E37', // Spider-Verse Blood Red / Crimson
     template: 'featured',
+    images: [
+      {
+        url: '/projects/blooddonation/bloodapp-adminhome.png',
+        label: 'Admin Console',
+        caption: 'Central operations dashboard tracking inventory, donor metrics, and emergency blood requests in real time.',
+      },
+      {
+        url: '/projects/blooddonation/bloodapp-donationcard.png',
+        label: 'Donation Flow',
+        caption: 'Role-based donor cards with real-time verification and hospital appointment scheduling.',
+      },
+      {
+        url: '/projects/blooddonation/bloodapp-response.png',
+        label: 'Donor Dispatch',
+        caption: 'Emergency blood request and donor response pipeline with rapid radius dispatch.',
+      },
+    ],
     splash: {
       headline: 'BLOOD\nDISPATCH',
       sub: 'REAL-TIME LOGISTICS & RBAC',
@@ -67,6 +90,23 @@ export const PROJECTS: ProjectData[] = [
     tags: ['Next.js 16', 'NestJS 12', 'Three.js', 'Stripe Subscriptions', 'PostgreSQL', 'Prisma 7', 'Redis'],
     accentColor: '#9945FF', // Neon Spider-Verse Violet
     template: 'grid6',
+    images: [
+      {
+        url: '/projects/gamestore/game-hero.png',
+        label: '3D Game Arena',
+        caption: 'Immersive Three.js WebGL hero showcase with real-time interactive game portal.',
+      },
+      {
+        url: '/projects/gamestore/game-list.png',
+        label: 'Game Catalog',
+        caption: 'High-concurrency game catalog filter backed by Redis caching and Prisma queries.',
+      },
+      {
+        url: '/projects/gamestore/game-membership.png',
+        label: 'VIP Membership',
+        caption: 'Monthly & yearly Stripe subscription tiers with automated webhook status synchronization.',
+      },
+    ],
     splash: {
       headline: '3D STORE\n& STRIPE',
       sub: 'HIGH CONCURRENCY & REDIS',
@@ -95,6 +135,18 @@ export const PROJECTS: ProjectData[] = [
     tags: ['Next.js App Router', 'Express 5', 'MongoDB', 'Mongoose', 'Radix UI', 'Zustand', 'Swagger'],
     accentColor: '#00DCE6', // Electric Multiverse Cyan
     template: 'banner-strip',
+    images: [
+      {
+        url: '/projects/lms/lms-dashboard.png',
+        label: 'Analytics Dashboard',
+        caption: 'Role-aware university operations dashboard tracking attendance, event approvals, and registrations.',
+      },
+      {
+        url: '/projects/lms/lms-users.png',
+        label: 'User Directory',
+        caption: 'Role-based access matrix managing club organizers, student attendees, and super-administrators.',
+      },
+    ],
     splash: {
       headline: 'CAMPUS\nOPERATIONS',
       sub: 'EXPRESS 5 + MONGODB',
@@ -124,6 +176,18 @@ export const PROJECTS: ProjectData[] = [
     tags: ['React 19', 'TypeScript', 'Chrome Manifest V3', 'Tailwind CSS', 'TanStack Query', 'Vite 8'],
     accentColor: '#FFB800', // Electric Amber / Comic Yellow
     template: 'asymmetric',
+    images: [
+      {
+        url: '/projects/github-productivityconsole-extension/homepage.png',
+        label: 'Toolbar Popup',
+        caption: 'Instant browser action center displaying commit velocity, PR review requests, and quick profile stats.',
+      },
+      {
+        url: '/projects/github-productivityconsole-extension/repo.png',
+        label: 'Repo Inspector',
+        caption: 'Comprehensive repository explorer with commit history, issue tracker, and branch switcher.',
+      },
+    ],
     splash: {
       headline: 'SOLOHUB\nTOOLBAR',
       sub: 'MANIFEST V3 + GITHUB REST',
@@ -144,73 +208,175 @@ export const PROJECTS: ProjectData[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// SUB-COMPONENTS (Reverse engineered directly from original comic design)
+// SUB-COMPONENTS
 // ---------------------------------------------------------------------------
 
-// 1. Big Comic Typography Headline with Halftone and Shadow
-function ComicHeadline({ headline, sub, color }: { headline: string; sub?: string; color: string }) {
+// 1. Comic Image Panel with Halftone Screen-Tone Dots & Interactive Switcher Tabs
+function ComicImagePanel({
+  images,
+  color,
+  defaultIndex = 0,
+  onExpand,
+}: {
+  images?: ProjectImage[];
+  color: string;
+  defaultIndex?: number;
+  onExpand?: (index: number) => void;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(defaultIndex);
+
+  // Sync if defaultIndex changes
+  useEffect(() => {
+    setCurrentIndex(defaultIndex);
+  }, [defaultIndex]);
+
+  if (!images || images.length === 0) return null;
+
+  const activeImg = images[currentIndex] || images[0];
+
   return (
     <div
       style={{
+        position: 'relative',
         width: '100%',
         height: '100%',
-        background: '#08010f',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0.75rem',
-        position: 'relative',
         overflow: 'hidden',
+        background: '#0a0a14',
       }}
+      className="group"
     >
+      <img
+        src={activeImg.url}
+        alt={activeImg.label}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'top center',
+          display: 'block',
+          transition: 'transform 0.4s ease, opacity 0.25s ease',
+        }}
+        className="group-hover:scale-105"
+      />
+
+      {/* Authentic Comic Halftone Screen-Tone Dots */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: `linear-gradient(135deg, ${color}22 0%, transparent 55%)`,
+          backgroundImage: 'radial-gradient(rgba(0,0,0,0.18) 1px, transparent 1px)',
+          backgroundSize: '4px 4px',
           pointerEvents: 'none',
         }}
       />
+
+      {/* Subtle Multiply Color Tint matching the project accent */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `radial-gradient(${color}28 1.5px, transparent 1.5px)`,
-          backgroundSize: '16px 16px',
+          background: `${color}14`,
+          mixBlendMode: 'multiply',
           pointerEvents: 'none',
         }}
       />
-      <span
+
+      {/* Comic Corner Badge / Label */}
+      <div
         style={{
-          fontFamily: 'var(--font-bangers, "Bangers", cursive)',
-          fontSize: 'clamp(2.2rem, 5.5vw, 4.8rem)',
+          position: 'absolute',
+          top: '0.45rem',
+          left: '0.5rem',
+          background: 'rgba(10, 2, 18, 0.92)',
+          border: '1.5px solid #1a0a0b',
+          borderRadius: '2px',
+          padding: '0.15rem 0.45rem',
+          fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+          fontSize: 'clamp(0.46rem, 0.55vw, 0.55rem)',
           color: color,
-          lineHeight: 0.88,
-          textAlign: 'center',
-          letterSpacing: '0.03em',
-          textShadow: `4px 4px 0 ${color}33`,
-          whiteSpace: 'pre-line',
-          position: 'relative',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          pointerEvents: 'none',
+          boxShadow: '1px 1px 0 #1a0a0b',
+          zIndex: 10,
         }}
       >
-        {headline}
-      </span>
-      {sub && (
-        <span
-          style={{
-            fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
-            fontSize: 'clamp(0.52rem, 0.62vw, 0.65rem)',
-            color: `${color}cc`,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            marginTop: '0.55rem',
-            position: 'relative',
-          }}
-        >
-          {sub}
-        </span>
-      )}
+        // {activeImg.label}
+      </div>
+
+      {/* Top-Right Screenshot Switcher Tabs & Zoom Button */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '0.42rem',
+          right: '0.45rem',
+          display: 'flex',
+          gap: '0.3rem',
+          zIndex: 10,
+        }}
+      >
+        {images.length > 1 &&
+          images.map((img, idx) => {
+            const isSelected = currentIndex === idx;
+            return (
+              <button
+                key={img.url}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(idx);
+                }}
+                title={img.label}
+                style={{
+                  background: isSelected ? color : 'rgba(10, 2, 18, 0.88)',
+                  color: isSelected ? '#0d0d0d' : '#f0f0ec',
+                  border: '1.5px solid #1a0a0b',
+                  borderRadius: '2px',
+                  fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+                  fontSize: 'clamp(0.44rem, 0.52vw, 0.54rem)',
+                  padding: '0.14rem 0.38rem',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  boxShadow: '1px 1px 0 #1a0a0b',
+                  transition: 'all 0.15s ease',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {idx + 1}
+              </button>
+            );
+          })}
+
+        {onExpand && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpand(currentIndex);
+            }}
+            title="Expand Screenshot"
+            style={{
+              background: 'rgba(10, 2, 18, 0.88)',
+              color: '#f0f0ec',
+              border: '1.5px solid #1a0a0b',
+              borderRadius: '2px',
+              padding: '0.18rem 0.35rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '1px 1px 0 #1a0a0b',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = color;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#f0f0ec';
+            }}
+          >
+            <Maximize2 size={11} strokeWidth={2.4} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -383,11 +549,11 @@ function ComicActionLinks({
 }
 
 // ---------------------------------------------------------------------------
-// 5 REVERSE ENGINEERED TEMPLATES
+// 4 REVERSE ENGINEERED TEMPLATES (With Real Screenshots & Code Terminals)
 // ---------------------------------------------------------------------------
 
 // TEMPLATE 1: Featured (Project 1: Blood Donation Console)
-function TemplateFeatured({ p }: { p: ProjectData }) {
+function TemplateFeatured({ p, onExpand }: { p: ProjectData; onExpand: (imgIdx: number) => void }) {
   return (
     <div
       style={{
@@ -449,9 +615,9 @@ function TemplateFeatured({ p }: { p: ProjectData }) {
         </span>
       </div>
 
-      {/* Left Top: Dynamic Comic Splash */}
+      {/* Left Top: Real Dashboard Screenshot with Halftone Texture & Switcher */}
       <div data-panel="true" style={{ gridArea: 'lt', border: BORDER_PANEL, overflow: 'hidden' }}>
-        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+        <ComicImagePanel images={p.images} defaultIndex={0} color={p.accentColor} onExpand={onExpand} />
       </div>
 
       {/* Right Top: Real-Time Live Code Terminal */}
@@ -506,7 +672,7 @@ function TemplateFeatured({ p }: { p: ProjectData }) {
 }
 
 // TEMPLATE 2: Grid6 (Project 2: Cool GameStore)
-function TemplateGrid6({ p }: { p: ProjectData }) {
+function TemplateGrid6({ p, onExpand }: { p: ProjectData; onExpand: (imgIdx: number) => void }) {
   return (
     <div
       style={{
@@ -519,9 +685,9 @@ function TemplateGrid6({ p }: { p: ProjectData }) {
         height: '100%',
       }}
     >
-      {/* Panel A: Splash */}
+      {/* Panel A: 3D Gaming Store Hero Screenshot */}
       <div data-panel="true" style={{ gridArea: 'a', border: BORDER_PANEL, overflow: 'hidden' }}>
-        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+        <ComicImagePanel images={p.images} defaultIndex={0} color={p.accentColor} onExpand={onExpand} />
       </div>
 
       {/* Panel B: Title & Subtitle */}
@@ -589,7 +755,7 @@ function TemplateGrid6({ p }: { p: ProjectData }) {
         </p>
       </div>
 
-      {/* Panel D: Tags on Accent Panel */}
+      {/* Panel D: Tags & High-Concurrency Specs (Replaces blank space with live telemetry) */}
       <div
         data-panel="true"
         style={{
@@ -599,16 +765,33 @@ function TemplateGrid6({ p }: { p: ProjectData }) {
           padding: '0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem',
-          justifyContent: 'center',
+          justifyContent: 'space-between',
+          gap: '0.45rem',
         }}
       >
         <ComicTags tags={p.tags} onDark={false} />
+        <div
+          style={{
+            background: '#1a0a0b',
+            padding: '0.35rem 0.6rem',
+            border: '1.5px solid #1a0a0b',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.62rem', color: '#00DCE6' }}>
+            STRIPE: WEBHOOK 200 OK
+          </span>
+          <span style={{ fontFamily: 'var(--font-audiowide, monospace)', fontSize: '0.55rem', color: '#f0f0ec' }}>
+            REDIS: HIT (0.4ms)
+          </span>
+        </div>
       </div>
 
-      {/* Panel E: Terminal Code */}
+      {/* Panel E: Game Catalog & VIP Membership Screenshot (Matching original function b) */}
       <div data-panel="true" style={{ gridArea: 'e', border: BORDER_PANEL, overflow: 'hidden' }}>
-        <CodeTerminal lines={p.splash.code} color={p.accentColor} />
+        <ComicImagePanel images={p.images} defaultIndex={1} color={p.accentColor} onExpand={onExpand} />
       </div>
 
       {/* Panel F: Action Buttons on Light Panel */}
@@ -631,7 +814,7 @@ function TemplateGrid6({ p }: { p: ProjectData }) {
 }
 
 // TEMPLATE 3: Banner-Strip (Project 3: Campus LMS)
-function TemplateBannerStrip({ p }: { p: ProjectData }) {
+function TemplateBannerStrip({ p, onExpand }: { p: ProjectData; onExpand: (imgIdx: number) => void }) {
   const topTags = p.tags.slice(0, 6);
   return (
     <div
@@ -643,9 +826,9 @@ function TemplateBannerStrip({ p }: { p: ProjectData }) {
         height: '100%',
       }}
     >
-      {/* Top Banner: Splash */}
+      {/* Top Banner: Real Campus LMS Dashboard & Directory Screenshots with Switcher */}
       <div data-panel="true" style={{ border: BORDER_PANEL, overflow: 'hidden' }}>
-        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+        <ComicImagePanel images={p.images} defaultIndex={0} color={p.accentColor} onExpand={onExpand} />
       </div>
 
       {/* Middle Strip: Alternating Accent/Dark Tech Tags */}
@@ -760,7 +943,7 @@ function TemplateBannerStrip({ p }: { p: ProjectData }) {
 }
 
 // TEMPLATE 4: Asymmetric (Project 4: Solohub)
-function TemplateAsymmetric({ p }: { p: ProjectData }) {
+function TemplateAsymmetric({ p, onExpand }: { p: ProjectData; onExpand: (imgIdx: number) => void }) {
   return (
     <div
       style={{
@@ -773,9 +956,12 @@ function TemplateAsymmetric({ p }: { p: ProjectData }) {
     >
       {/* Row 1: Asymmetric 3fr / 2fr */}
       <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '6px' }}>
+        {/* Left (3fr): Solohub Chrome Extension Toolbar Screenshot with Switcher */}
         <div data-panel="true" style={{ border: BORDER_PANEL, overflow: 'hidden' }}>
-          <CodeTerminal lines={p.splash.code} color={p.accentColor} />
+          <ComicImagePanel images={p.images} defaultIndex={0} color={p.accentColor} onExpand={onExpand} />
         </div>
+
+        {/* Right (2fr): Header Banner with Comic Terminal Preview */}
         <div
           data-panel="true"
           style={{
@@ -784,33 +970,52 @@ function TemplateAsymmetric({ p }: { p: ProjectData }) {
             padding: '0.85rem',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
           }}
         >
-          <p
+          <div>
+            <p
+              style={{
+                fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+                fontSize: 'clamp(0.54rem, 0.62vw, 0.68rem)',
+                color: '#1a0a0bcc',
+                letterSpacing: '0.12em',
+                marginBottom: '0.2rem',
+                margin: 0,
+              }}
+            >
+              {p.subtitle}
+            </p>
+            <h2
+              style={{
+                fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+                fontSize: 'clamp(1.5rem, 3vw, 2.6rem)',
+                color: '#1a0a0b',
+                lineHeight: 1,
+                letterSpacing: '0.04em',
+                margin: 0,
+              }}
+            >
+              {p.title}
+            </h2>
+          </div>
+
+          {/* Mini Inset Terminal Log to populate panel symmetrically */}
+          <div
             style={{
-              fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
-              fontSize: 'clamp(0.54rem, 0.62vw, 0.68rem)',
-              color: '#1a0a0bcc',
-              letterSpacing: '0.12em',
-              marginBottom: '0.2rem',
-              margin: 0,
+              background: '#0d0d0d',
+              padding: '0.45rem 0.65rem',
+              border: '2px solid #1a0a0b',
+              boxShadow: '2px 2px 0 #1a0a0b',
             }}
           >
-            {p.subtitle}
-          </p>
-          <h2
-            style={{
-              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
-              fontSize: 'clamp(1.5rem, 3vw, 2.6rem)',
-              color: '#1a0a0b',
-              lineHeight: 1,
-              letterSpacing: '0.04em',
-              margin: 0,
-            }}
-          >
-            {p.title}
-          </h2>
+            <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.62rem', color: p.accentColor }}>
+              $ chrome.storage.local.get(['github_pat'])
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.58rem', color: '#e0ddd8aa' }}>
+              &gt; Direct GitHub API Mode · 5,000 req/hr
+            </div>
+          </div>
         </div>
       </div>
 
@@ -837,7 +1042,7 @@ function TemplateAsymmetric({ p }: { p: ProjectData }) {
               letterSpacing: '0.12em',
             }}
           >
-            ◆ MANIFEST V3 OVERVIEW ◆
+            ◆ CHROME EXTENSION MANIFEST V3 ◆
           </span>
         </div>
         <div data-panel="true" style={{ background: '#0d0d0d', border: BORDER_PANEL, minHeight: '2.5rem' }} />
@@ -889,7 +1094,7 @@ function TemplateAsymmetric({ p }: { p: ProjectData }) {
 }
 
 // Mobile Responsive Comic Card
-function MobileComicCard({ p }: { p: ProjectData }) {
+function MobileComicCard({ p, onExpand }: { p: ProjectData; onExpand: (imgIdx: number) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', height: '100%' }}>
       {/* Header */}
@@ -928,9 +1133,9 @@ function MobileComicCard({ p }: { p: ProjectData }) {
         </h2>
       </div>
 
-      {/* Middle: Splash */}
+      {/* Middle: Real Screenshot Preview with Halftone Texture & Switcher */}
       <div data-panel="true" style={{ border: BORDER_PANEL, flex: '2 1 0', overflow: 'hidden', minHeight: 0 }}>
-        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+        <ComicImagePanel images={p.images} defaultIndex={0} color={p.accentColor} onExpand={onExpand} />
       </div>
 
       {/* Description */}
@@ -985,22 +1190,30 @@ function MobileComicCard({ p }: { p: ProjectData }) {
 }
 
 // Template Switcher
-function ProjectTemplateRenderer({ project, isMobile }: { project: ProjectData; isMobile: boolean }) {
+function ProjectTemplateRenderer({
+  project,
+  isMobile,
+  onExpand,
+}: {
+  project: ProjectData;
+  isMobile: boolean;
+  onExpand: (imgIdx: number) => void;
+}) {
   if (isMobile) {
-    return <MobileComicCard p={project} />;
+    return <MobileComicCard p={project} onExpand={onExpand} />;
   }
 
   switch (project.template) {
     case 'featured':
-      return <TemplateFeatured p={project} />;
+      return <TemplateFeatured p={project} onExpand={onExpand} />;
     case 'grid6':
-      return <TemplateGrid6 p={project} />;
+      return <TemplateGrid6 p={project} onExpand={onExpand} />;
     case 'banner-strip':
-      return <TemplateBannerStrip p={project} />;
+      return <TemplateBannerStrip p={project} onExpand={onExpand} />;
     case 'asymmetric':
-      return <TemplateAsymmetric p={project} />;
+      return <TemplateAsymmetric p={project} onExpand={onExpand} />;
     default:
-      return <TemplateFeatured p={project} />;
+      return <TemplateFeatured p={project} onExpand={onExpand} />;
   }
 }
 
@@ -1011,6 +1224,12 @@ export const ProjectsView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Modal Lightbox State
+  const [lightbox, setLightbox] = useState<{
+    projectIndex: number;
+    imageIndex: number;
+  } | null>(null);
 
   // Track window resize
   useEffect(() => {
@@ -1041,7 +1260,7 @@ export const ProjectsView: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Keyboard navigation (Arrow keys)
+  // Keyboard navigation (Arrow keys + Escape for modal)
   const scrollToIndex = useCallback((idx: number) => {
     if (!containerRef.current) return;
     const target = containerRef.current.querySelectorAll<HTMLElement>('[data-project-section]')[idx];
@@ -1052,6 +1271,32 @@ export const ProjectsView: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightbox) {
+        const currentProj = PROJECTS[lightbox.projectIndex];
+        if (e.key === 'Escape') {
+          setLightbox(null);
+        } else if (e.key === 'ArrowRight') {
+          setLightbox((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  imageIndex: (prev.imageIndex + 1) % currentProj.images.length,
+                }
+              : null
+          );
+        } else if (e.key === 'ArrowLeft') {
+          setLightbox((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  imageIndex: (prev.imageIndex - 1 + currentProj.images.length) % currentProj.images.length,
+                }
+              : null
+          );
+        }
+        return;
+      }
+
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         e.preventDefault();
         const next = Math.min(PROJECTS.length - 1, activeIndex + 1);
@@ -1064,9 +1309,10 @@ export const ProjectsView: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeIndex, scrollToIndex]);
+  }, [activeIndex, scrollToIndex, lightbox]);
 
-  const currentProject = PROJECTS[activeIndex] || PROJECTS[0];
+  const activeProject = lightbox ? PROJECTS[lightbox.projectIndex] : null;
+  const activeImage = lightbox && activeProject ? activeProject.images[lightbox.imageIndex] : null;
 
   return (
     <div
@@ -1191,7 +1437,11 @@ export const ProjectsView: React.FC = () => {
             }
           >
             {/* The Specific Comic Grid Template */}
-            <ProjectTemplateRenderer project={project} isMobile={isMobile} />
+            <ProjectTemplateRenderer
+              project={project}
+              isMobile={isMobile}
+              onExpand={(imgIdx) => setLightbox({ projectIndex: idx, imageIndex: imgIdx })}
+            />
 
             {/* Corner Comic Page Number */}
             <span
@@ -1212,6 +1462,229 @@ export const ProjectsView: React.FC = () => {
           </div>
         </section>
       ))}
+
+      {/* 3. Authentic Spider-Verse Comic Screenshot Lightbox Modal */}
+      {lightbox && activeProject && activeImage && (
+        <div
+          onClick={() => setLightbox(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100,
+            background: 'rgba(8, 1, 15, 0.92)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            animation: 'fadeIn 0.2s ease',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: 'min(1150px, 92vw)',
+              maxHeight: '90vh',
+              background: '#0a0a14',
+              border: '4px solid #1a0a0b',
+              boxShadow: `12px 12px 0 #1a0a0b, 0 0 60px ${activeProject.accentColor}33`,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Top Header Bar */}
+            <div
+              style={{
+                background: activeProject.accentColor,
+                borderBottom: '3px solid #1a0a0b',
+                padding: '0.65rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+                    fontSize: '1.4rem',
+                    color: '#1a0a0b',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {activeProject.title}
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+                    fontSize: '0.68rem',
+                    color: '#1a0a0bcc',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  // {activeImage.label.toUpperCase()}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono, monospace)',
+                    fontSize: '0.7rem',
+                    color: '#1a0a0b',
+                    fontWeight: 700,
+                  }}
+                >
+                  [{lightbox.imageIndex + 1} / {activeProject.images.length}]
+                </span>
+
+                <button
+                  onClick={() => setLightbox(null)}
+                  title="Close (ESC)"
+                  style={{
+                    background: '#1a0a0b',
+                    color: '#f0f0ec',
+                    border: '2px solid #1a0a0b',
+                    cursor: 'pointer',
+                    padding: '0.2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Image Display with Crisp View */}
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#040008',
+                maxHeight: '74vh',
+                overflow: 'hidden',
+              }}
+            >
+              <img
+                src={activeImage.url}
+                alt={activeImage.label}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '74vh',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+
+              {/* Prev / Next Arrows */}
+              {activeProject.images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightbox((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              imageIndex:
+                                (prev.imageIndex - 1 + activeProject.images.length) % activeProject.images.length,
+                            }
+                          : null
+                      );
+                    }}
+                    title="Previous (Left Arrow)"
+                    style={{
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'rgba(10, 2, 18, 0.9)',
+                      color: activeProject.accentColor,
+                      border: '2px solid #1a0a0b',
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      boxShadow: '2px 2px 0 #1a0a0b',
+                    }}
+                  >
+                    <ChevronLeft size={22} strokeWidth={2.8} />
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightbox((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              imageIndex: (prev.imageIndex + 1) % activeProject.images.length,
+                            }
+                          : null
+                      );
+                    }}
+                    title="Next (Right Arrow)"
+                    style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'rgba(10, 2, 18, 0.9)',
+                      color: activeProject.accentColor,
+                      border: '2px solid #1a0a0b',
+                      padding: '0.5rem',
+                      cursor: 'pointer',
+                      boxShadow: '2px 2px 0 #1a0a0b',
+                    }}
+                  >
+                    <ChevronRight size={22} strokeWidth={2.8} />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Modal Bottom Caption */}
+            {activeImage.caption && (
+              <div
+                style={{
+                  background: '#0d0d0d',
+                  borderTop: '2px solid #1a0a0b',
+                  padding: '0.65rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+                    fontSize: '0.78rem',
+                    color: '#e0ddd8',
+                    margin: 0,
+                  }}
+                >
+                  {activeImage.caption}
+                </p>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-audiowide, monospace)',
+                    fontSize: '0.6rem',
+                    color: '#888',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  PRESS ESC TO CLOSE
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
