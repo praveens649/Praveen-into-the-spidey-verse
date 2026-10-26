@@ -1,290 +1,1217 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Code, ChevronLeft, ChevronRight, Terminal } from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { ExternalLink, Code } from 'lucide-react';
 
+// Authentic Spider-Verse Comic Borders & Constants
+const BORDER_PANEL = '3px solid #1a0a0b';
+const CARD_TILTS = ['-1.5deg', '0.8deg', '-0.4deg', '1.2deg', '-1deg', '0.6deg'];
 
-interface ProjectItem {
+export interface ProjectData {
   id: string;
   issueNo: string;
-  category: string;
   title: string;
+  subtitle: string;
   description: string;
-  highlights: string[];
-  tech: string[];
-  image: string;
-  githubUrl: string;
-  liveUrl?: string;
+  tags: string[];
   accentColor: string;
+  template: 'featured' | 'grid6' | 'banner-strip' | 'asymmetric';
+  imageUrl?: string;
+  splash: {
+    headline: string;
+    sub?: string;
+    code: string[];
+  };
+  links: {
+    website?: string;
+    github?: string;
+    rules?: string; // Live API / Backend
+  };
 }
 
-const PROJECTS: ProjectItem[] = [
+export const PROJECTS: ProjectData[] = [
   {
-    id: 'sonic',
+    id: 'blood-donation-console',
     issueNo: '01',
-    category: 'AI MUSIC IDENTITY GENERATOR',
-    title: 'SONIC AI PROFILER',
+    title: 'Blood Donation Console',
+    subtitle: 'Healthcare Logistics & Emergency Network',
     description:
-      'AI-driven application that analyzes playlist metadata to generate personalized music identity cards and psychological profiles. Features a high-efficiency architecture reducing LLM token consumption by 95% through template injection.',
-    highlights: [
-      'Engineered multi-model pipeline with Google ADK, FastMCP, and LiteLLM.',
-      'Groq-powered high-speed inference with Gemini multimodal fallback.',
-      'Single-pass Spotify metadata extraction and canvas card rendering.',
-    ],
-    tech: ['Next.js', 'FastMCP', 'LiteLLM', 'Google ADK', 'Groq / Gemini'],
-    image: '/stitch_contact_jam_cosmic_portfolio/a_futuristic_abstract_representation_of_ai_music_analysis._glowing_digital/screen.png',
-    githubUrl: 'https://github.com/praveens649/Sonic-Music-Card-Generator',
-    liveUrl: 'https://github.com/praveens649/Sonic-Music-Card-Generator',
-    accentColor: '#FF4500',
+      'A full-stack blood donation and hospital logistics console connecting blood banks, registered donors, and critical recipients in real-time. Features role-based access control (RBAC), interactive Leaflet geospatial blood bank mapping, appointment scheduling, automated donation tracking, and emergency blood request-response pipelines with instant Resend notifications.',
+    tags: ['Next.js 16', 'NestJS 12', 'PostgreSQL', 'Prisma 7', 'Leaflet', 'TanStack Query', 'Resend'],
+    accentColor: '#E63E37', // Spider-Verse Blood Red / Crimson
+    template: 'featured',
+    splash: {
+      headline: 'BLOOD\nDISPATCH',
+      sub: 'REAL-TIME LOGISTICS & RBAC',
+      code: [
+        '$ pnpm --filter server start:prod',
+        '> [Nest] 8420 - Nest application initialized',
+        '> [Prisma] Connected to PostgreSQL @ 5432',
+        '>>> POST /api/v1/blood-requests',
+        '> Emergency blood request dispatched (O-Negative)',
+        '> Notifying nearest 14 donors via Leaflet GeoQuery...',
+        '> 200 OK - 8 donors responded in 90s',
+      ],
+    },
+    links: {
+      website: 'https://doodleblue-3.netlify.app',
+      github: 'https://github.com/Sankar-web-dev/Doodleblue-3',
+      rules: 'https://doodleblue-3.onrender.com',
+    },
   },
   {
-    id: 'mazecrawler',
+    id: 'cool-gamestore',
     issueNo: '02',
-    category: 'KAGGLE MULTI-AGENT COMPETITION',
-    title: 'MAZECRAWLER AGENT',
+    title: 'Cool GameStore',
+    subtitle: 'Interactive 3D Gaming & Subscription Platform',
     description:
-      'Autonomous multi-agent system for intelligent exploration and resource collection in a partially observable maze environment. Designed modular Python architecture enabling strategy optimization and scalable agent coordination.',
-    highlights: [
-      'Implemented real-time pathfinding and dynamic map reconstruction algorithms.',
-      'Multi-agent decision-making for optimal resource harvesting.',
-      'High-scoring competition entry on Kaggle benchmark platform.',
-    ],
-    tech: ['Python', 'Kaggle', 'Pathfinding', 'Multi-Agent System', 'Algorithms'],
-    image: '/stitch_contact_jam_cosmic_portfolio/a_high_end_futuristic_3d_visualization_of_a_maze_exploration_ai_agent._a/screen.png',
-    githubUrl: 'https://github.com/praveens649/kaggle-MazeCrawler-game-Agent',
-    liveUrl: 'https://github.com/praveens649/kaggle-MazeCrawler-game-Agent',
-    accentColor: '#00dce6',
+      'A full-stack game membership and booking platform built with Next.js 16 and NestJS 12. Supports interactive Three.js 3D game discovery, monthly/yearly membership subscriptions via Stripe Checkout, automated webhook synchronization, session verification, calendar booking management, and high-performance caching powered by Redis.',
+    tags: ['Next.js 16', 'NestJS 12', 'Three.js', 'Stripe Subscriptions', 'PostgreSQL', 'Prisma 7', 'Redis'],
+    accentColor: '#9945FF', // Neon Spider-Verse Violet
+    template: 'grid6',
+    splash: {
+      headline: '3D STORE\n& STRIPE',
+      sub: 'HIGH CONCURRENCY & REDIS',
+      code: [
+        '$ stripe listen --forward-to localhost:5000/webhook',
+        '> 200 OK [checkout.session.completed]',
+        '> Customer: cust_92xL7 (Tier: Platinum VIP)',
+        '>>> Redis Cache HIT: key=catalog:games:top10 (0.4ms)',
+        '>>> Three.js WebGL Renderer: 60 FPS',
+        '> Stripe subscription synchronized to Prisma',
+      ],
+    },
+    links: {
+      website: 'https://doodleblue4.netlify.app',
+      github: 'https://github.com/Sankar-web-dev/doodleblue4',
+      rules: 'https://doodleblue4.onrender.com',
+    },
   },
   {
-    id: 'blogspace',
+    id: 'campus-lms',
     issueNo: '03',
-    category: 'FULL-STACK BLOGGING PLATFORM',
-    title: 'BLOGSPACE PLATFORM',
+    title: 'Campus LMS',
+    subtitle: 'Role-Aware Academic & Club Operations',
     description:
-      'A high-performance full-stack platform for creating and managing blogs with secure authentication and role-based access control. Implemented relational database schemas and CRUD operations using Supabase and PostgreSQL.',
-    highlights: [
-      'Relational schema design and optimized indexing in PostgreSQL.',
-      'Integrated Supabase Storage for secure media assets management.',
-      'Server-side rendering and static cache revalidation via Next.js App Router.',
-    ],
-    tech: ['Next.js', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Drizzle ORM'],
-    image: '/stitch_contact_jam_cosmic_portfolio/a_sophisticated_futuristic_3d_representation_of_a_full_stack_blogging_platform_/screen.png',
-    githubUrl: 'https://github.com/praveens649/Blogs',
-    liveUrl: 'https://github.com/praveens649/Blogs',
-    accentColor: '#E63E37',
+      'A full-stack campus and community management platform with role-aware workflows for universities. Handles multi-level event approval hierarchies, club memberships, QR attendance tracking, automated certificate issuance, session-based route security via connect-mongo, and interactive Swagger documentation.',
+    tags: ['Next.js App Router', 'Express 5', 'MongoDB', 'Mongoose', 'Radix UI', 'Zustand', 'Swagger'],
+    accentColor: '#00DCE6', // Electric Multiverse Cyan
+    template: 'banner-strip',
+    splash: {
+      headline: 'CAMPUS\nOPERATIONS',
+      sub: 'EXPRESS 5 + MONGODB',
+      code: [
+        '$ pnpm --filter server dev',
+        '> [Express] Server listening on port 5000',
+        '> Session store: connect-mongo active',
+        '>>> POST /api/v1/events/approve-workflow',
+        '> Event "TechSymposium 2026" approved by SuperAdmin',
+        '> Generating dynamic PDF certificates via Resend...',
+        '> 201 Created - Attendance & certificates synced',
+      ],
+    },
+    links: {
+      website: 'https://doodle-blue-2.vercel.app',
+      github: 'https://github.com/Sankar-web-dev/DoodleBlue-2',
+      rules: 'https://doodleblue-2.onrender.com',
+    },
   },
   {
-    id: 'redacted',
+    id: 'solohub',
     issueNo: '04',
-    category: 'NEURAL ORCHESTRATION HUB',
-    title: 'PROJECT [REDACTED]',
+    title: 'Solohub',
+    subtitle: 'GitHub Control Center for Solo Developers',
     description:
-      'Building a high-concurrency neural orchestration hub designed to streamline development timelines and bend visual gravity. Initiating sub-routine development for next-gen zero-gravity interface modules.',
-    highlights: [
-      'High-concurrency Rust backends with async event streaming.',
-      'Next-generation UI shaders and WebGL particle environments.',
-      'Encrypted codebase logic securing algorithmic configurations.',
-    ],
-    tech: ['Rust', 'Next.js', 'AI Agents', 'Edge Networks', 'WebGL'],
-    image: '/projects/true_redditor.png',
-    githubUrl: 'https://github.com/praveens649',
-    liveUrl: 'https://github.com/praveens649',
-    accentColor: '#FFB800',
+      'A high-productivity GitHub control center built as a Manifest V3 Chrome Extension. Puts your active repositories, commit streaks, PR velocity, issue tracking, and notification inbox right into the browser toolbar. Features instant Ctrl+K command palette, zero-backend Direct PAT authentication with rate-limit tracking, and optional OAuth 2.0 flow.',
+    tags: ['React 19', 'TypeScript', 'Chrome Manifest V3', 'Tailwind CSS', 'TanStack Query', 'Vite 8'],
+    accentColor: '#FFB800', // Electric Amber / Comic Yellow
+    template: 'asymmetric',
+    splash: {
+      headline: 'SOLOHUB\nTOOLBAR',
+      sub: 'MANIFEST V3 + GITHUB REST',
+      code: [
+        '$ pnpm --filter extension build',
+        '> Chrome Manifest V3 bundled via @crxjs/vite-plugin',
+        '>>> chrome.storage.local: PAT authenticated',
+        '>>> GitHub REST API: 5,000 req/hr remaining',
+        '> Action Center: 3 PR review requests, 0 CI failures',
+        '> Command Palette: Ctrl+K ready',
+      ],
+    },
+    links: {
+      website: 'https://github.com/praveens649/solohub',
+      github: 'https://github.com/praveens649/solohub',
+    },
   },
 ];
 
-export const ProjectsView: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+// ---------------------------------------------------------------------------
+// SUB-COMPONENTS (Reverse engineered directly from original comic design)
+// ---------------------------------------------------------------------------
 
-  const project = PROJECTS[currentIndex];
+// 1. Big Comic Typography Headline with Halftone and Shadow
+function ComicHeadline({ headline, sub, color }: { headline: string; sub?: string; color: string }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#08010f',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.75rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `linear-gradient(135deg, ${color}22 0%, transparent 55%)`,
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `radial-gradient(${color}28 1.5px, transparent 1.5px)`,
+          backgroundSize: '16px 16px',
+          pointerEvents: 'none',
+        }}
+      />
+      <span
+        style={{
+          fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+          fontSize: 'clamp(2.2rem, 5.5vw, 4.8rem)',
+          color: color,
+          lineHeight: 0.88,
+          textAlign: 'center',
+          letterSpacing: '0.03em',
+          textShadow: `4px 4px 0 ${color}33`,
+          whiteSpace: 'pre-line',
+          position: 'relative',
+        }}
+      >
+        {headline}
+      </span>
+      {sub && (
+        <span
+          style={{
+            fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+            fontSize: 'clamp(0.52rem, 0.62vw, 0.65rem)',
+            color: `${color}cc`,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            marginTop: '0.55rem',
+            position: 'relative',
+          }}
+        >
+          {sub}
+        </span>
+      )}
+    </div>
+  );
+}
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % PROJECTS.length);
-  };
+// 2. Terminal Code Lines Block with Scanline Overlay
+function CodeTerminal({ lines, color }: { lines: string[]; color: string }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#0a0a14',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: '0.8rem 0.9rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Neon Left Border Indicator */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: '3px',
+          background: color,
+        }}
+      />
+      {/* CRT Scanline Texture */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage:
+            'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px)',
+          pointerEvents: 'none',
+        }}
+      />
+      {lines.map((line, idx) => (
+        <div
+          key={idx}
+          style={{
+            fontFamily: 'var(--font-mono, "Fira Code", monospace)',
+            fontSize: 'clamp(0.58rem, 0.78vw, 0.72rem)',
+            color:
+              line.startsWith('$') || line.startsWith('>>>')
+                ? color
+                : line.startsWith('>')
+                ? `${color}dd`
+                : line === ''
+                ? 'transparent'
+                : '#e0ddd866',
+            lineHeight: 1.6,
+            paddingLeft: '0.6rem',
+            letterSpacing: '0.02em',
+            whiteSpace: 'pre',
+          }}
+        >
+          {line || ' '}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + PROJECTS.length) % PROJECTS.length);
-  };
+// 3. Comic Tech Tags
+function ComicTags({ tags, onDark }: { tags: string[]; onDark?: boolean }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+      {tags.map((t) => (
+        <span
+          key={t}
+          style={{
+            background: onDark ? '#ffffff14' : '#1a0a0b',
+            color: onDark ? '#e8e8e0' : '#f0f0ec',
+            fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+            fontSize: 'clamp(0.52rem, 0.6vw, 0.64rem)',
+            padding: '0.22rem 0.5rem',
+            border: `1.5px solid ${onDark ? '#ffffff22' : '#1a0a0b'}`,
+            letterSpacing: '0.04em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {t}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// 4. Authentic Comic Action Buttons
+function ComicActionLinks({
+  links,
+  accent,
+  onDark,
+}: {
+  links: ProjectData['links'];
+  accent: string;
+  onDark?: boolean;
+}) {
+  const items = [
+    links.website && { href: links.website, label: 'Live App', isLive: true },
+    links.rules && { href: links.rules, label: 'API Server', isLive: false },
+    links.github && { href: links.github, label: 'GitHub', isLive: false },
+  ].filter(Boolean) as { href: string; label: string; isLive: boolean }[];
+
+  if (items.length === 0) return null;
 
   return (
-    <div className="relative min-h-screen w-full pt-28 pb-20 select-none overflow-hidden flex flex-col justify-between">
-      {/* Background Dots */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#140a24] via-[#0b0416] to-[#0a0212] z-0"></div>
-      <div className="absolute inset-0 bg-halftone opacity-40 z-0"></div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+      <span
+        style={{
+          fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+          fontSize: 'clamp(0.48rem, 0.55vw, 0.56rem)',
+          color: onDark ? '#ffffff66' : '#1a0a0b77',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+        }}
+      >
+        <span>LAUNCH DISPATCH</span>
+        <ExternalLink size={10} strokeWidth={2.4} />
+      </span>
 
-      {/* Main Container */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full my-auto">
-        {/* Header Title: CHAPTER II - PROJECTS */}
-        <div className="text-center mb-8">
-          <p className="font-audiowide text-[10px] sm:text-xs text-white/50 tracking-[0.45em] uppercase mb-1">
-            CHAPTER II
-          </p>
-          <h2
-            className="font-bangers text-4xl sm:text-6xl text-[#E63E37] tracking-wider uppercase inline-block transform -rotate-1"
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        {items.map(({ href, label, isLive }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              textShadow: '3px 3px 0px #ffffff, 6px 6px 0px #000000',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: isLive ? accent : '#1a0a0b',
+              color: isLive ? '#0d0d0d' : '#ffffff',
+              fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+              fontSize: 'clamp(0.6rem, 0.72vw, 0.72rem)',
+              padding: '0.36rem 0.85rem',
+              border: '2px solid #1a0a0b',
+              boxShadow: '2px 2px 0 #1a0a0b',
+              textDecoration: 'none',
+              letterSpacing: '0.06em',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translate(-2px, -2px)';
+              e.currentTarget.style.boxShadow = '4px 4px 0 #1a0a0b';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translate(0, 0)';
+              e.currentTarget.style.boxShadow = '2px 2px 0 #1a0a0b';
             }}
           >
-            PROJECTS
+            {label === 'GitHub' ? <Code size={12} /> : <ExternalLink size={12} />}
+            <span>{label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 5 REVERSE ENGINEERED TEMPLATES
+// ---------------------------------------------------------------------------
+
+// TEMPLATE 1: Featured (Project 1: Blood Donation Console)
+function TemplateFeatured({ p }: { p: ProjectData }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '2fr 3fr',
+        gridTemplateRows: 'auto 1fr 1fr',
+        gridTemplateAreas: '"header header" "lt rt" "lb rb"',
+        gap: '6px',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {/* Top Banner Header */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'header',
+          background: p.accentColor,
+          border: BORDER_PANEL,
+          padding: '0.65rem 1.1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.9rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          <h2
+            style={{
+              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+              fontSize: 'clamp(1.9rem, 4.5vw, 3.2rem)',
+              color: '#1a0a0b',
+              letterSpacing: '0.05em',
+              lineHeight: 1,
+              margin: 0,
+            }}
+          >
+            {p.title}
           </h2>
+          <span
+            style={{
+              fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+              fontSize: 'clamp(0.58rem, 0.8vw, 0.74rem)',
+              color: '#1a0a0bcc',
+              letterSpacing: '0.1em',
+            }}
+          >
+            / {p.subtitle}
+          </span>
+        </div>
+        <span
+          style={{
+            fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+            fontSize: 'clamp(1rem, 1.8vw, 1.5rem)',
+            color: '#1a0a0b66',
+          }}
+        >
+          {p.issueNo}
+        </span>
+      </div>
+
+      {/* Left Top: Dynamic Comic Splash */}
+      <div data-panel="true" style={{ gridArea: 'lt', border: BORDER_PANEL, overflow: 'hidden' }}>
+        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+      </div>
+
+      {/* Right Top: Real-Time Live Code Terminal */}
+      <div data-panel="true" style={{ gridArea: 'rt', border: BORDER_PANEL, overflow: 'hidden' }}>
+        <CodeTerminal lines={p.splash.code} color={p.accentColor} />
+      </div>
+
+      {/* Left Bottom: Tags & Action Buttons on Dark Panel */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'lb',
+          background: '#0d0d0d',
+          border: BORDER_PANEL,
+          padding: '0.85rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.55rem',
+          justifyContent: 'center',
+        }}
+      >
+        <ComicTags tags={p.tags} onDark={true} />
+        <ComicActionLinks links={p.links} accent={p.accentColor} onDark={true} />
+      </div>
+
+      {/* Right Bottom: Narrative Description */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'rb',
+          background: '#f5f5f0',
+          border: BORDER_PANEL,
+          padding: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+            fontSize: 'clamp(0.68rem, 1vw, 0.88rem)',
+            color: '#1a0a0b',
+            lineHeight: 1.65,
+            margin: 0,
+          }}
+        >
+          {p.description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// TEMPLATE 2: Grid6 (Project 2: Cool GameStore)
+function TemplateGrid6({ p }: { p: ProjectData }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gridTemplateRows: '1fr 1fr 1fr',
+        gridTemplateAreas: '"a b" "c d" "e f"',
+        gap: '6px',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {/* Panel A: Splash */}
+      <div data-panel="true" style={{ gridArea: 'a', border: BORDER_PANEL, overflow: 'hidden' }}>
+        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+      </div>
+
+      {/* Panel B: Title & Subtitle */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'b',
+          background: '#f5f5f0',
+          border: BORDER_PANEL,
+          padding: '1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+            fontSize: 'clamp(0.56rem, 0.72vw, 0.7rem)',
+            color: '#666',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            marginBottom: '0.3rem',
+            margin: 0,
+          }}
+        >
+          {p.subtitle}
+        </p>
+        <h2
+          style={{
+            fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+            fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
+            color: '#1a0a0b',
+            lineHeight: 1,
+            letterSpacing: '0.04em',
+            margin: 0,
+          }}
+        >
+          {p.title}
+        </h2>
+      </div>
+
+      {/* Panel C: Narrative on Dark Panel */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'c',
+          background: '#0d0d0d',
+          border: BORDER_PANEL,
+          padding: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+            fontSize: 'clamp(0.66rem, 0.98vw, 0.86rem)',
+            color: '#e0ddd8',
+            lineHeight: 1.65,
+            margin: 0,
+          }}
+        >
+          {p.description}
+        </p>
+      </div>
+
+      {/* Panel D: Tags on Accent Panel */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'd',
+          background: p.accentColor,
+          border: BORDER_PANEL,
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+          justifyContent: 'center',
+        }}
+      >
+        <ComicTags tags={p.tags} onDark={false} />
+      </div>
+
+      {/* Panel E: Terminal Code */}
+      <div data-panel="true" style={{ gridArea: 'e', border: BORDER_PANEL, overflow: 'hidden' }}>
+        <CodeTerminal lines={p.splash.code} color={p.accentColor} />
+      </div>
+
+      {/* Panel F: Action Buttons on Light Panel */}
+      <div
+        data-panel="true"
+        style={{
+          gridArea: 'f',
+          background: '#f5f5f0',
+          border: BORDER_PANEL,
+          padding: '0.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ComicActionLinks links={p.links} accent={p.accentColor} onDark={false} />
+      </div>
+    </div>
+  );
+}
+
+// TEMPLATE 3: Banner-Strip (Project 3: Campus LMS)
+function TemplateBannerStrip({ p }: { p: ProjectData }) {
+  const topTags = p.tags.slice(0, 6);
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateRows: '2.5fr auto 2fr',
+        gap: '6px',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {/* Top Banner: Splash */}
+      <div data-panel="true" style={{ border: BORDER_PANEL, overflow: 'hidden' }}>
+        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+      </div>
+
+      {/* Middle Strip: Alternating Accent/Dark Tech Tags */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${topTags.length || 4}, 1fr)`,
+          gap: '6px',
+        }}
+      >
+        {topTags.map((t, idx) => (
+          <div
+            key={t}
+            data-panel="true"
+            style={{
+              border: BORDER_PANEL,
+              background: idx % 2 === 0 ? p.accentColor : '#0d0d0d',
+              padding: '0.4rem 0.2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '2.6rem',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+                fontSize: 'clamp(0.52rem, 0.65vw, 0.64rem)',
+                color: idx % 2 === 0 ? '#0d0d0d' : p.accentColor,
+                textAlign: 'center',
+                letterSpacing: '0.04em',
+                fontWeight: 700,
+              }}
+            >
+              {t}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Grid: 2 Columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+        {/* Left: Narrative Description */}
+        <div
+          data-panel="true"
+          style={{
+            border: BORDER_PANEL,
+            background: '#f5f5f0',
+            padding: '1.1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+              fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
+              color: '#1a0a0b',
+              lineHeight: 1,
+              marginBottom: '0.4rem',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {p.title}
+          </h2>
+          <p
+            style={{
+              fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+              fontSize: 'clamp(0.66rem, 0.98vw, 0.86rem)',
+              color: '#333',
+              lineHeight: 1.65,
+              margin: 0,
+            }}
+          >
+            {p.description}
+          </p>
         </div>
 
-        {/* 6-Panel Comic Book Layout Spread */}
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.4 }}
-              className="w-full bg-[#f4efe4] p-3 sm:p-5 rounded-sm border-4 border-black shadow-[10px_10px_0px_#000000] text-black"
-            >
-              {/* Comic Grid: 2 columns, 3 rows (6 panels) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                {/* PANEL 1 (Top Left): Project Screenshot / Terminal Preview */}
-                <div className="relative aspect-[16/10] bg-black rounded-sm border-3 border-black overflow-hidden group shadow-[3px_3px_0px_#000]">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter contrast-110"
-                  />
-                  <div className="absolute top-2 left-2 bg-black/80 text-[#00f0ff] font-mono text-[9px] px-2 py-0.5 rounded border border-[#00f0ff]/40 flex items-center gap-1.5">
-                    <Terminal size={11} />
-                    <span>// PREVIEW // ISSUE_{project.issueNo}</span>
-                  </div>
-                </div>
-
-                {/* PANEL 2 (Top Right): Category & Big Bangers Title */}
-                <div className="bg-[#fcfaf7] p-4 sm:p-6 rounded-sm border-3 border-black flex flex-col justify-center shadow-[3px_3px_0px_#000]">
-                  <p className="font-audiowide text-[10px] sm:text-xs text-gray-500 tracking-[0.25em] uppercase mb-1">
-                    {project.category}
-                  </p>
-                  <h3 className="font-bangers text-3xl sm:text-5xl text-black tracking-wide leading-none uppercase">
-                    {project.title}
-                  </h3>
-                </div>
-
-                {/* PANEL 3 (Middle Left): Narrative Description & Highlights */}
-                <div className="bg-[#fcfaf7] p-4 sm:p-6 rounded-sm border-3 border-black flex flex-col justify-between shadow-[3px_3px_0px_#000]">
-                  <p className="font-grotesk text-sm sm:text-base text-gray-800 leading-relaxed font-medium">
-                    {project.description}
-                  </p>
-
-                  <div className="mt-3 space-y-1.5">
-                    {project.highlights.map((point, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs font-grotesk text-gray-700">
-                        <span className="text-[#E63E37] font-bold">◆</span>
-                        <span>{point}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* PANEL 4 (Middle Right): High-Contrast Comic Color Panel with Tech Tags */}
-                <div
-                  className="p-4 sm:p-6 rounded-sm border-3 border-black flex flex-col justify-center items-start shadow-[3px_3px_0px_#000] relative overflow-hidden"
-                  style={{ backgroundColor: project.accentColor }}
-                >
-                  <div className="absolute inset-0 bg-comic-dots-red opacity-15 pointer-events-none"></div>
-
-                  <p className="font-audiowide text-[10px] text-black font-bold tracking-widest uppercase mb-3 bg-white/80 px-2 py-0.5 rounded">
-                    TECH STACK & CAPABILITIES
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 relative z-10">
-                    {project.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="bg-black text-white font-audiowide text-[10px] sm:text-xs px-3 py-1.5 rounded-sm border border-white/20 shadow-[2px_2px_0px_#ffffff]"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* PANEL 5 (Bottom Left): Terminal Telemetry Logs */}
-                <div className="bg-[#120820] text-[#00f0ff] p-4 rounded-sm border-3 border-black font-mono text-[10px] sm:text-xs leading-relaxed flex flex-col justify-center shadow-[3px_3px_0px_#000]">
-                  <div className="text-white/40 mb-1 border-b border-white/10 pb-1 flex justify-between">
-                    <span>STATUS: COMPILED_PRODUCTION</span>
-                    <span>SYS_LAYER: {project.issueNo}</span>
-                  </div>
-                  <p className="text-white/80">$ git log --oneline -n 1</p>
-                  <p className="text-[#FFB800]">&gt; feat({project.id}): optimize latency and deploy to edge network</p>
-                  <p className="text-green-400">&gt; build verification: PASS (0 errors)</p>
-                </div>
-
-                {/* PANEL 6 (Bottom Right): Action Buttons & Comic Panel Number */}
-                <div className="bg-[#fcfaf7] p-4 sm:p-6 rounded-sm border-3 border-black flex items-center justify-between shadow-[3px_3px_0px_#000] relative">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="comic-box bg-black hover:bg-gray-800 text-white font-bangers text-base sm:text-lg px-4 sm:px-6 py-2 rounded-sm cursor-pointer flex items-center gap-2"
-                    >
-                      <Code size={16} />
-                      VIEW REPO
-                    </a>
-
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="comic-box bg-[#E63E37] hover:bg-[#ff4f47] text-white font-bangers text-base sm:text-lg px-4 sm:px-6 py-2 rounded-sm cursor-pointer flex items-center gap-2"
-                      >
-                        <span>LIVE</span>
-                        <ExternalLink size={15} />
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Corner Comic Issue Number */}
-                  <span className="font-bangers italic text-3xl sm:text-4xl text-gray-300 select-none">
-                    {project.issueNo}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Left / Right Carousel Controls */}
-          <div className="flex justify-between items-center mt-6">
-            <button
-              onClick={handlePrev}
-              className="comic-box bg-[#1b102c] hover:bg-[#281842] text-white font-bangers text-base sm:text-lg px-4 py-2 rounded cursor-pointer flex items-center gap-2"
-            >
-              <ChevronLeft size={18} />
-              PREVIOUS ISSUE
-            </button>
-
-            {/* Pagination Chapter Dots */}
-            <div className="flex items-center gap-2.5">
-              {PROJECTS.map((p, idx) => (
-                <button
-                  key={p.id}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`w-3.5 h-3.5 rounded-full border-2 transition-all cursor-pointer ${
-                    currentIndex === idx
-                      ? 'bg-[#E63E37] border-white scale-125 shadow-[0_0_8px_#E63E37]'
-                      : 'bg-white/20 border-transparent hover:bg-white/50'
-                  }`}
-                  title={p.title}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={handleNext}
-              className="comic-box bg-[#1b102c] hover:bg-[#281842] text-white font-bangers text-base sm:text-lg px-4 py-2 rounded cursor-pointer flex items-center gap-2"
-            >
-              NEXT ISSUE
-              <ChevronRight size={18} />
-            </button>
-          </div>
+        {/* Right: Code Terminal & Action Links */}
+        <div
+          data-panel="true"
+          style={{
+            border: BORDER_PANEL,
+            background: p.accentColor,
+            padding: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '0.7rem',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+              fontSize: 'clamp(0.58rem, 0.75vw, 0.74rem)',
+              color: '#1a0a0b',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              margin: 0,
+              fontWeight: 700,
+            }}
+          >
+            {p.subtitle}
+          </p>
+          <ComicActionLinks links={p.links} accent="#f5f5f0" />
         </div>
       </div>
+    </div>
+  );
+}
+
+// TEMPLATE 4: Asymmetric (Project 4: Solohub)
+function TemplateAsymmetric({ p }: { p: ProjectData }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateRows: '2fr auto 1.5fr',
+        gap: '6px',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {/* Row 1: Asymmetric 3fr / 2fr */}
+      <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '6px' }}>
+        <div data-panel="true" style={{ border: BORDER_PANEL, overflow: 'hidden' }}>
+          <CodeTerminal lines={p.splash.code} color={p.accentColor} />
+        </div>
+        <div
+          data-panel="true"
+          style={{
+            background: p.accentColor,
+            border: BORDER_PANEL,
+            padding: '0.85rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+              fontSize: 'clamp(0.54rem, 0.62vw, 0.68rem)',
+              color: '#1a0a0bcc',
+              letterSpacing: '0.12em',
+              marginBottom: '0.2rem',
+              margin: 0,
+            }}
+          >
+            {p.subtitle}
+          </p>
+          <h2
+            style={{
+              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+              fontSize: 'clamp(1.5rem, 3vw, 2.6rem)',
+              color: '#1a0a0b',
+              lineHeight: 1,
+              letterSpacing: '0.04em',
+              margin: 0,
+            }}
+          >
+            {p.title}
+          </h2>
+        </div>
+      </div>
+
+      {/* Row 2: Comic Ribbon Bar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '6px', alignItems: 'stretch' }}>
+        <div data-panel="true" style={{ background: '#0d0d0d', border: BORDER_PANEL, minHeight: '2.5rem' }} />
+        <div
+          data-panel="true"
+          style={{
+            background: '#f5f5f0',
+            border: BORDER_PANEL,
+            padding: '0.28rem 1.6rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+              fontSize: 'clamp(0.85rem, 1.6vw, 1.2rem)',
+              color: '#1a0a0b',
+              letterSpacing: '0.12em',
+            }}
+          >
+            ◆ MANIFEST V3 OVERVIEW ◆
+          </span>
+        </div>
+        <div data-panel="true" style={{ background: '#0d0d0d', border: BORDER_PANEL, minHeight: '2.5rem' }} />
+      </div>
+
+      {/* Row 3: Narrative & Actions */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+        <div
+          data-panel="true"
+          style={{
+            background: '#0d0d0d',
+            border: BORDER_PANEL,
+            padding: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+              fontSize: 'clamp(0.66rem, 1vw, 0.88rem)',
+              color: '#e0ddd8',
+              lineHeight: 1.65,
+              margin: 0,
+            }}
+          >
+            {p.description}
+          </p>
+        </div>
+
+        <div
+          data-panel="true"
+          style={{
+            background: '#f5f5f0',
+            border: BORDER_PANEL,
+            padding: '0.85rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '0.6rem',
+          }}
+        >
+          <ComicTags tags={p.tags} onDark={false} />
+          <ComicActionLinks links={p.links} accent={p.accentColor} onDark={false} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Mobile Responsive Comic Card
+function MobileComicCard({ p }: { p: ProjectData }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', height: '100%' }}>
+      {/* Header */}
+      <div
+        data-panel="true"
+        style={{
+          background: p.accentColor,
+          border: BORDER_PANEL,
+          padding: '0.55rem 0.85rem',
+          flexShrink: 0,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-audiowide, "Audiowide", monospace)',
+            fontSize: 'clamp(0.54rem, 2.2vw, 0.65rem)',
+            color: '#1a0a0bcc',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            margin: '0 0 0.15rem 0',
+          }}
+        >
+          {p.subtitle}
+        </p>
+        <h2
+          style={{
+            fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+            fontSize: 'clamp(1.6rem, 6vw, 2.4rem)',
+            color: '#1a0a0b',
+            lineHeight: 1,
+            letterSpacing: '0.04em',
+            margin: 0,
+          }}
+        >
+          {p.title}
+        </h2>
+      </div>
+
+      {/* Middle: Splash */}
+      <div data-panel="true" style={{ border: BORDER_PANEL, flex: '2 1 0', overflow: 'hidden', minHeight: 0 }}>
+        <ComicHeadline headline={p.splash.headline} sub={p.splash.sub} color={p.accentColor} />
+      </div>
+
+      {/* Description */}
+      <div
+        data-panel="true"
+        style={{
+          background: '#0d0d0d',
+          border: BORDER_PANEL,
+          padding: '0.65rem 0.85rem',
+          flex: '1 1 0',
+          overflow: 'hidden',
+          minHeight: 0,
+          display: 'flex',
+          alignItems: 'flex-start',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-grotesk, "Space Grotesk", sans-serif)',
+            fontSize: 'clamp(0.7rem, 2.8vw, 0.85rem)',
+            color: '#e0ddd8',
+            lineHeight: 1.55,
+            margin: 0,
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          {p.description}
+        </p>
+      </div>
+
+      {/* Bottom: Tags & Actions */}
+      <div
+        data-panel="true"
+        style={{
+          background: '#f5f5f0',
+          border: BORDER_PANEL,
+          padding: '0.6rem 0.85rem',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}
+      >
+        <ComicTags tags={p.tags.slice(0, 4)} onDark={false} />
+        <ComicActionLinks links={p.links} accent={p.accentColor} onDark={false} />
+      </div>
+    </div>
+  );
+}
+
+// Template Switcher
+function ProjectTemplateRenderer({ project, isMobile }: { project: ProjectData; isMobile: boolean }) {
+  if (isMobile) {
+    return <MobileComicCard p={project} />;
+  }
+
+  switch (project.template) {
+    case 'featured':
+      return <TemplateFeatured p={project} />;
+    case 'grid6':
+      return <TemplateGrid6 p={project} />;
+    case 'banner-strip':
+      return <TemplateBannerStrip p={project} />;
+    case 'asymmetric':
+      return <TemplateAsymmetric p={project} />;
+    default:
+      return <TemplateFeatured p={project} />;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MAIN PROJECTS VIEW (Interactive Fullscreen Scroll-Snap Comic Spread)
+// ---------------------------------------------------------------------------
+export const ProjectsView: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Track window resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // IntersectionObserver to observe each project section and trigger animations
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const sections = container.querySelectorAll<HTMLElement>('[data-project-section]');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const idx = Number(entry.target.getAttribute('data-index') ?? 0);
+          setActiveIndex(idx);
+        });
+      },
+      { threshold: 0.45, root: container }
+    );
+
+    sections.forEach((sec) => observer.observe(sec));
+    return () => observer.disconnect();
+  }, []);
+
+  // Keyboard navigation (Arrow keys)
+  const scrollToIndex = useCallback((idx: number) => {
+    if (!containerRef.current) return;
+    const target = containerRef.current.querySelectorAll<HTMLElement>('[data-project-section]')[idx];
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = Math.min(PROJECTS.length - 1, activeIndex + 1);
+        scrollToIndex(next);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = Math.max(0, activeIndex - 1);
+        scrollToIndex(prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, scrollToIndex]);
+
+  const currentProject = PROJECTS[activeIndex] || PROJECTS[0];
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        height: '100vh',
+        overflowY: 'scroll',
+        scrollSnapType: 'y mandatory',
+        background: '#08010f',
+        backgroundImage: 'radial-gradient(#ffffff0a 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+        position: 'relative',
+      }}
+      className="select-none"
+    >
+      {/* 1. Fixed Right Side Comic Navigation Dots */}
+      <nav
+        style={{
+          position: 'fixed',
+          right: '1.4rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 40,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.65rem',
+          alignItems: 'center',
+        }}
+      >
+        {PROJECTS.map((proj, idx) => {
+          const isActive = activeIndex === idx;
+          return (
+            <button
+              key={proj.id}
+              onClick={() => scrollToIndex(idx)}
+              title={proj.title}
+              style={{
+                width: isActive ? '13px' : '8px',
+                height: isActive ? '13px' : '8px',
+                borderRadius: '50%',
+                background: isActive ? proj.accentColor : '#ffffff22',
+                border: `2px solid ${isActive ? proj.accentColor : '#ffffff44'}`,
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                padding: 0,
+                outline: 'none',
+                boxShadow: isActive ? `0 0 10px ${proj.accentColor}` : 'none',
+              }}
+            />
+          );
+        })}
+      </nav>
+
+      {/* 2. Project Sections List (Scroll-Snap) */}
+      {PROJECTS.map((project, idx) => (
+        <section
+          key={project.id}
+          data-project-section="true"
+          data-index={idx}
+          style={{
+            height: '100vh',
+            scrollSnapAlign: 'start',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'clamp(4.8rem, 7.5vh, 5.8rem) clamp(1rem, 4vw, 3rem) 2rem',
+            position: 'relative',
+          }}
+        >
+          {/* Giant Background Ghost Comic Issue Number */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+              fontSize: 'min(55vw, 55vh)',
+              color: `${project.accentColor}09`,
+              letterSpacing: '-0.05em',
+              userSelect: 'none',
+              pointerEvents: 'none',
+              lineHeight: 1,
+              overflow: 'hidden',
+            }}
+          >
+            {project.issueNo}
+          </div>
+
+          {/* Authentic Comic Book Page Spread Container */}
+          <div
+            style={{
+              position: 'relative',
+              width: 'min(900px, 88vw)',
+              height: 'min(640px, 82vh)',
+              background: '#ece9e0',
+              border: '4px solid #1a0a0b',
+              boxShadow: `10px 10px 0 rgba(0,0,0,0.8), 0 0 55px ${project.accentColor}1a`,
+              padding: '6px',
+              transform: isMobile ? 'none' : `rotate(${CARD_TILTS[idx % CARD_TILTS.length]})`,
+              transition: isMobile ? 'none' : 'transform 0.35s ease, box-shadow 0.35s ease',
+              zIndex: 1,
+            }}
+            onMouseEnter={
+              isMobile
+                ? undefined
+                : (e) => {
+                    const card = e.currentTarget;
+                    card.style.transform = 'rotate(0deg) scale(1.012)';
+                    card.style.boxShadow = `14px 14px 0 rgba(0,0,0,0.85), 0 0 65px ${project.accentColor}2a`;
+                  }
+            }
+            onMouseLeave={
+              isMobile
+                ? undefined
+                : (e) => {
+                    const card = e.currentTarget;
+                    card.style.transform = `rotate(${CARD_TILTS[idx % CARD_TILTS.length]})`;
+                    card.style.boxShadow = `10px 10px 0 rgba(0,0,0,0.8), 0 0 55px ${project.accentColor}1a`;
+                  }
+            }
+          >
+            {/* The Specific Comic Grid Template */}
+            <ProjectTemplateRenderer project={project} isMobile={isMobile} />
+
+            {/* Corner Comic Page Number */}
+            <span
+              style={{
+                position: 'absolute',
+                bottom: '0.45rem',
+                right: '0.6rem',
+                fontFamily: 'var(--font-bangers, "Bangers", cursive)',
+                fontSize: 'clamp(0.8rem, 1.2vw, 1rem)',
+                color: '#1a0a0b30',
+                letterSpacing: '0.06em',
+                pointerEvents: 'none',
+                lineHeight: 1,
+              }}
+            >
+              {project.issueNo}
+            </span>
+          </div>
+        </section>
+      ))}
     </div>
   );
 };

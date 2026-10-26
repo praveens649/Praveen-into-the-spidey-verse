@@ -256,9 +256,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             top: 38,
             right: '14%',
             zIndex: 10,
-            opacity: currentTab === 'about' && isScrolled ? 0 : 1,
-            transform: currentTab === 'about' && isScrolled ? 'translateY(-120%) scale(0.95)' : 'translateY(0) scale(1)',
-            pointerEvents: currentTab === 'about' && isScrolled ? 'none' : 'auto',
+            opacity: (currentTab === 'about' && isScrolled) || currentTab === 'projects' ? 0 : 1,
+            transform: (currentTab === 'about' && isScrolled) || currentTab === 'projects' ? 'translateY(-120%) scale(0.95)' : 'translateY(0) scale(1)',
+            pointerEvents: (currentTab === 'about' && isScrolled) || currentTab === 'projects' ? 'none' : 'auto',
           }}
         >
           {/* Gwen Stacy (Upside Down) */}
